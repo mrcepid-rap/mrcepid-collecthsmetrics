@@ -1,0 +1,66 @@
+{
+  "name": "mrcepid-collecthsmetrics",
+  "title": "CollectHsMetrics",
+  "summary": "Calculates coverage stats for a single CRAM file based on a set of input intervals",
+  "dxapi": "1.0.0",
+  "version": "0.0.2",
+  "openSource": true,
+  "inputSpec": [
+    {
+      "name": "cram",
+      "label": "CRAM format file",
+      "class": "file",
+      "optional": false,
+      "patterns": [
+        "*.cram"
+      ],
+      "help": ""
+    },
+    {
+      "name": "intervals",
+      "label": "Interval array in GATK/Picard interval format",
+      "class": "array:file",
+      "optional": false,
+      "patterns": [
+        "*.interval_list"
+      ],
+      "help": ""
+    }
+  ],
+  "outputSpec": [
+    {
+      "name": "output_file",
+      "label": "Output file with coverage stats",
+      "class": "file",
+      "optional": false,
+      "patterns": [
+        "*.gz"
+      ],
+      "help": ""
+    }
+  ],
+  "runSpec": {
+    "timeoutPolicy": {
+      "*": {
+        "hours": 2
+      }
+    },
+    "interpreter": "python3",
+    "file": "src/mrcepid-collecthsmetrics.py",
+    "distribution": "Ubuntu",
+    "release": "20.04",
+    "version": "0",
+    "execDepends": [
+      {"name": "openjdk-8-jre-headless"}
+    ]
+  },
+  "regionalOptions": {
+    "aws:eu-west-2": {
+      "systemRequirements": {
+        "*": {
+          "instanceType": "mem2_ssd1_v2_x2"
+        }
+      }
+    }
+  }
+}
