@@ -93,7 +93,8 @@ This applet requires 3 primary inputs. All files can be provided as either a pat
 ### Output
 
 The applet provides as output a single .gz file of the form `sample_<EID>.coverage.txt.gz`, where <EID> is the UKBB sample
-ID provided by the dx file property 'eid' from the input cram file (i.e. -icram). This same field can be derived on the command line by running a command like:
+ID provided by the dx file property 'eid' from the input cram file (i.e. -icram). This same field can be derived on the 
+command line by running a command like:
 
 ```
 dx describe file-123456abcde
@@ -107,29 +108,12 @@ cram file run through this tool.
 
 ### Command line example
 
-Running this command is fairly straightforward using the DNANexus SDK toolkit. If you are using a project OTHER THAN
-"MRC - Y Chromosome Loss" (project-G50vFK0JJjbf1VJb4gk2vVXX), you will need to compile this applet for your respective DNANexus project:
+If this is your first time running this applet within a project other than "MRC - Y Chromosome Loss" (project-G50vFK0JJjbf1VJb4gk2vVXX),
+please see our organisational documentation on how to download and build this app on the DNANexus Research Access Platform:
 
-1. Clone this github repo:
+https://github.com/mrcepid-rap
 
-```commandline
-git clone https://github.com/MRCEpid-DNANexus/mrcepid-collecthsmetrics.git
-```
-
-This will create a folder named mrcepid-collecthsmetrics, you can then:
-
-2. Compile the source code:
-
-```commandline
-dx build -f mrcepid-collecthsmetrics
-```
-
-the `-f` flag just tells DNANexus to overwrite older versions of the applet within the same project.
-
-**BIG NOTE:** This has not been tested in any project other than "MRC - Y Chromosome Loss". It MAY BREAK due to hardcoded
-paths to [Resource Files](#resource-files).
-
-You can then run the following to run this applet:
+You can run the following to run this applet:
 
 ```commandline
 dx run mrcepid-collecthsmetrics /
