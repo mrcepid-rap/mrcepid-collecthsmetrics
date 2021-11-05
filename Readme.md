@@ -35,7 +35,7 @@ placed into the directory:
 `resources/usr/bin`
 
 in accordance with the dependency [instructions](https://documentation.dnanexus.com/developer/apps/dependency-management/asset-build-process)
-from DNANexus. All resources stored in this folder are then included with the built app ([see below](#)) at `/usr/bin/picard.jar`
+from DNANexus. All resources stored in this folder are then included with the built app at `/usr/bin/picard.jar`
 on the launched AWS instance.
 
 #### Resource Files
