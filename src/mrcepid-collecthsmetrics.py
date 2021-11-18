@@ -40,7 +40,7 @@ def get_cram_index(dx_cram):
 
     # This uses dxpy to search for the crai index associated with the cram file. I worry that this is way too hardcoded
     # and could easily break given changes to the underlying project/directory structure
-    found_files = list(dxpy.find_data_objects(project = "project-G50vFK0JJjbf1VJb4gk2vVXX",
+    found_files = list(dxpy.find_data_objects(project = "project-G6F3238JvzZpKfB7FbbYpX92",
                                 folder = cram_folder + "/",
                                 name = cram_name + ".crai",
                                 classname = "file"))
