@@ -64,16 +64,17 @@ All interval files are stored in project-specific folder `/project_resources/int
 This applet is mostly a wrapper around the picardtools CollectHsMetrics command. Please see the [documentation](https://gatk.broadinstitute.org/hc/en-us/articles/360036856051-CollectHsMetrics-Picard-)
 for CollectHsMetrics for more information on how it works.
 
-This tool injests a single cram file, finds the associated index for that cram and then runs a picardtools command like:
+This tool injests multiple cram files, finds the associated index for those crams and then runs a picardtools command like:
 
 ```commandline
 java -Xmx4000M -Xms4000M -jar /usr/bin/picard.jar CollectHsMetrics \
-              VALIDATION_STRINGENCY=LENIENT \
-              I=sample.cram \
-              BAIT_INTERVALS=intervals.interval_list \
-              TARGET_INTERVALS=intervals.interval_list \
-              O=output_file \
-              R=reference.fasta
+              -VALIDATION_STRINGENCY LENIENT \
+              -I sample.cram \
+              -BAIT_INTERVALS intervals.interval_list \
+              -TARGET_INTERVALS intervals.interval_list \
+              -O output_file \
+              -R reference.fasta \
+              -VERBOSITY ERROR
 ```
 
 `output_file` is the default picard CollectHsMetrics output. This file is then read into Python and the column 
@@ -83,32 +84,59 @@ java -Xmx4000M -Xms4000M -jar /usr/bin/picard.jar CollectHsMetrics \
 
 ### Inputs
 
-This applet requires 3 primary inputs. All files can be provided as either a path **OR** dx file descriptor (e.g. `file-123456abcde`):
+This applet requires 2 primary inputs (`cram` and `intervals`). `threads` and `output_file` are optional. Files can 
+be provided as either a path **OR** dx file descriptor (e.g. `file-123456abcde`):
 
 |  Input Option   |  dx type  |  description |
 |-----------------|-----------|--------------|
-| -icram         | file       | .cram file                          |
-| -iintervals    | array:file | .json array of user-provided `.interval_list` files. See how this looks [below](#command-line-example) |
+| cram_list       | file       | list of .cram files to process, one .cram per-line                                                     |
+| intervals       | array:file | .json array of user-provided `.interval_list` files. See how this looks [below](#command-line-example) |
+| threads         | int        | number of threads that can be used by this job **[32]**                                                |
+| output_file     | string     | name of the txt.gz output file **[coverage.txt.gz]**                                                   |
+
+`cram_list` is a file list that **MUST** contain DNANexus file hash keys (e.g. like file-1234567890ABCDEFGHIJ). A simple
+way to generate such a list is with the following bash/perl one-liner:
+
+```commandline
+dx ls -l "Bulk/Exome sequences/Exome OQFE CRAM files/10/*.cram" | perl -ane 'chomp $_; if ($F[6] =~ /^\((\S+)\)$/) {print "$1\n";}' > cram_list.txt
+```
+
+This command will:
+
+1. Find all cram files in the directory `10/` and print in dna nexus "long" format which includes a column for file hash (column 7)
+2. Extract the file hash using a perl one-liner and print one file hash per line
+
+The final input file will look something like:
+
+```text
+file-1234567890ABCDEFGHIJ
+file-2345678901ABCDEFGHIJ
+file-3456789012ABCDEFGHIJ
+file-4567890123ABCDEFGHIJ
+```
+
+This file then needs to be uploaded to the DNANexus platform, so it can be provided as input:
+
+```commandline
+dx upload cram_list.txt
+```
 
 ### Output
 
-The applet provides as output a single .gz file of the form `sample_<EID>.coverage.txt.gz`, where <EID> is the UKBB sample
-ID provided by the dx file property 'eid' from the input cram file (i.e. -icram). This same field can be derived on the 
-command line by running a command like:
+The applet provides as output a single .gz file named using the `output_file` input parameter (by default `coverage.txt.gz`).
+The first column of the output file is the sample EID, followed by a column for each of the masks provided to `intervals`
+named according to the interval_type property as [described above](#resource-files). One row is returned for each
+cram file run through this tool:
 
+```text
+sample  autosome    XnoPAR  xdr
+1234567 57.23124    54.19918    0
+8901234 45.91785    27.02918    29.91712
 ```
-dx describe file-123456abcde
-```
-
-where `file-123456abcde` is a dx file descriptor of a cram file. The eid can be seen in the 'properties' field.
-
-The first column of the output file is the sample EID, followed by a column for each of the masks provided to `-iintervals`
-named according to the interval_type property as [described above](#resource-files). Only one row is returned for each
-cram file run through this tool.
 
 ### Command line example
 
-If this is your first time running this applet within a project other than "MRC - Y Chromosome Loss" (project-G50vFK0JJjbf1VJb4gk2vVXX),
+If this is your first time running this applet within a project other than "MRC_EPID_450K_read_depth" (project-G6F3238JvzZpKfB7FbbYpX92),
 please see our organisational documentation on how to download and build this app on the DNANexus Research Access Platform:
 
 https://github.com/mrcepid-rap
@@ -117,53 +145,32 @@ You can run the following to run this applet:
 
 ```commandline
 dx run mrcepid-collecthsmetrics /
-        -icram=file-FybvvKjJ8yf65Yx53k17BzJB /
+        --priority low
+        -icram_list=file-FybvvKjJ8yf65Yx53k17BzJB /
         -iintervals={"file-G33gzBjJXk859gB3FFxFXv6k","file-G365Z30JXk8305fy2fPBKgvx","file-G365Yv8JXk82523zFY17gJpv"}
+        -ioutputfile="myrun.txt.gz"
         --destination project_output/
 ```
 
 Some notes here regarding execution:
-1. The list provided to `-iintervals` is a json-like string that provides the file hashes for the individual interval_files. 
+1. You will likely want to include the `--priority low` to make sure you don't request a ton of on-demand instances, which 
+   are more expensive.
 
-2. Outputs are automatically named based on the prefix of the input vcf full path (this is regardless of if you use hash or full path). So
-the primary VCF output for the above command-line will be `sample_1000020.coverage.txt`. All outputs will be named using a similar convention.
+2. The list provided to `-iintervals` is a json-like string that provides the file hashes for the individual interval_files.
 
 3. I have set a sensible (and tested) default for compute resources on DNANexus that is baked into the json used for building the app (at `dxapp.json`)
-so setting an instance type is unnecessary. This current default is for a mem2_ssd1_v2_x2 instance (2 CPUs, 4 Gb RAM, 75Gb storage).
-If necessary to adjust compute resources, one can provide a flag like `--instance-type mem1_ssd1_v2_x8`.
-
-This app uses a mem2_ssd1_v2_x2 instance by default (2 cpus, 8Gb mem, 75Gb SSD). This should be sufficient for any WES sample.
+so setting an instance type is unnecessary. This current default is for a mem2_ssd1_v2_x32 instance (32 CPUs, 128 Gb RAM, 1.2Tb storage).
+If necessary to adjust compute resources, one can provide a flag like `--instance-type mem2_ssd1_v2_x8`.
+   
+4. output-file is not required by default, but is recommended.
 
 ### Batch running
 
-To run multiple files at once (i.e. in batch), the user needs to create a batch file. DNA Nexus have developed a tool 
-which does this automatically. An example follows which generates batch files for all cram files in folder `10/`:
+This applet supports running multiple cram files at once via multithreading by default. However, there are some considerations:
 
-```commandline
-dx generate_batch_inputs --path "Bulk/Exome sequences/Exome OQFE CRAM files/10/" -icram='(.*)_23153_0_0(\.cram)$''
-```
+1. Using the default instance, 31 cram files can be run at once. Thus, if trying to run thousands of cram files, you will 
+   want to spread the workload over multiple instances.
 
-**Note:** The above path to cram files is likely to become outdated as new data is released. I will either update this 
-example or you will have to modify accordingly.
-
-**Note:** The goofy thing about the batch input file generated by this is it generates a different batch ID for each run.
-I think it might be good to modify to a single batch input like:
-
-```commandline
-grep 'batch'  dx_batch.0001.tsv > header.txt
-grep -v 'batch' dx_batch.*.tsv | perl -ane 'if ($F[0] =~ /dx_batch.(\d+)\.tsv/) {$F[0] = $1; print join("\t", @F) . "\n";}' > dx_batch.all.tsv
-cat header.txt dx_batch.all.tsv > dx_batch.all.header.tsv
-```
-
-And then execute the standard command line as above, but modified to use this file:
-
-```commandline
-dx run mrcepid-collecthsmetrics /
-        --priority low
-        --batch-tsv dx_batch.0008.tsv /
-        --destination project_output/ /
-        --batch-folders /
-        -iintervals={"file-G33gzBjJXk859gB3FFxFXv6k","file-G365Z30JXk8305fy2fPBKgvx","file-G365Yv8JXk82523zFY17gJpv"}
-```
-
-**Remember:** You will likely want to include the `--priority low` to make sure you don't request a ton of on-demand instances
+2. If changing the default instance **YOU MUST** use at least mem2 instances as picard needs more memory per file (~4Gb) 
+   then a mem1 instance can provide. **YOU MUST** also change the `threads` parameter accordingly to ensure that each thread
+   has enough CPUs to execute.

@@ -7,12 +7,12 @@
   "openSource": true,
   "inputSpec": [
     {
-      "name": "cram",
-      "label": "CRAM format file",
+      "name": "cram_list",
+      "label": "List of cram files to process in this instance",
       "class": "file",
       "optional": false,
       "patterns": [
-        "*.cram"
+        "*.txt"
       ],
       "help": ""
     },
@@ -23,6 +23,25 @@
       "optional": false,
       "patterns": [
         "*.interval_list"
+      ],
+      "help": ""
+    },
+    {
+      "name": "threads",
+      "label": "number of threads available to this instance",
+      "class": "int",
+      "optional": true,
+      "default": 32,
+      "help": "Number of threads available to this instance."
+    },
+    {
+      "name": "output_file",
+      "label": "File to output results to. Default name is coverage.txt.gz",
+      "class": "string",
+      "optional": true,
+      "default": "coverage.txt.gz",
+      "patterns": [
+        "*.txt.gz"
       ],
       "help": ""
     }
@@ -58,7 +77,7 @@
     "aws:eu-west-2": {
       "systemRequirements": {
         "*": {
-          "instanceType": "mem2_ssd1_v2_x2"
+          "instanceType": "mem2_ssd1_v2_x32"
         }
       }
     }
