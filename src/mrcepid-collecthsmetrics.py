@@ -120,7 +120,7 @@ def process_cram(cram: str, interval_files: dict) -> dict:
         # Run picard itself using the run_cmd() function
         # Picard is stored as a "resource" and included with the app when building on DNANexus. See README for more details
         print("Performing coverage calculation on sample " + sample_id + " for interval: " + interval_type)
-        cmd = "java -Xmx4000M -Xms4000M -jar /usr/bin/picard.jar CollectHsMetrics " \
+        cmd = "java -Xmx4000M -Xms4000M -XX:+UseSerialGC -jar /usr/bin/picard.jar CollectHsMetrics " \
               "-VALIDATION_STRINGENCY LENIENT " \
               "-I " + sample_id + ".cram " \
               "-BAIT_INTERVALS " + interval_file + " " \
