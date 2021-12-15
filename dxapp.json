@@ -61,7 +61,7 @@
   "runSpec": {
     "timeoutPolicy": {
       "*": {
-        "hours": 2
+        "hours": 80
       }
     },
     "interpreter": "python3",
