@@ -148,7 +148,7 @@ dx run mrcepid-collecthsmetrics /
         --priority low
         -icram_list=file-FybvvKjJ8yf65Yx53k17BzJB /
         -iintervals={"file-G33gzBjJXk859gB3FFxFXv6k","file-G365Z30JXk8305fy2fPBKgvx","file-G365Yv8JXk82523zFY17gJpv"}
-        -ioutputfile="myrun.txt.gz"
+        -ioutput_file="myrun.txt.gz"
         --destination project_output/
 ```
 
