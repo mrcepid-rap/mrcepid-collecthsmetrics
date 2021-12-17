@@ -135,6 +135,8 @@ def process_cram(cram: str, interval_files: dict) -> dict:
         for i in csv.DictReader(open(output_file).readlines()[6:8], delimiter="\t"):
             cov_values[interval_type] = i['MEAN_TARGET_COVERAGE']
 
+    cmd = "rm " + sample_id + ".cram"
+    run_cmd(cmd)
     print("Finished processing sample " + sample_id + "...\n")
 
     return cov_values
