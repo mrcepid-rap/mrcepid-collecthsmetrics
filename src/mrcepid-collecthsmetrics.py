@@ -12,6 +12,7 @@ import subprocess
 import gzip
 import shutil
 import csv
+import os
 from concurrent import futures
 from concurrent.futures import ThreadPoolExecutor
 
@@ -143,7 +144,11 @@ def process_cram(cram: str, interval_files: dict) -> dict:
 
 
 @dxpy.entry_point('main')
-def main(cram_list, intervals, threads, output_file):
+def main(cram_list, intervals, output_file):
+
+    # Get threads available to this instance
+    threads = os.cpu_count()
+    print('Number of threads available: %i' % threads)
 
     # This function just grabs resources necessary to run this code
     interval_files = ingest_resources(intervals)

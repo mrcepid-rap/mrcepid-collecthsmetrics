@@ -84,14 +84,13 @@ java -Xmx4000M -Xms4000M -jar /usr/bin/picard.jar CollectHsMetrics \
 
 ### Inputs
 
-This applet requires 2 primary inputs (`cram` and `intervals`). `threads` and `output_file` are optional. Files can 
+This applet requires 2 primary inputs (`cram` and `intervals`). `output_file` is optional. Files can 
 be provided as either a path **OR** dx file descriptor (e.g. `file-123456abcde`):
 
 |  Input Option   |  dx type  |  description |
 |-----------------|-----------|--------------|
 | cram_list       | file       | list of .cram files to process, one .cram per-line                                                     |
 | intervals       | array:file | .json array of user-provided `.interval_list` files. See how this looks [below](#command-line-example) |
-| threads         | int        | number of threads that can be used by this job **[32]**                                                |
 | output_file     | string     | name of the txt.gz output file **[coverage.txt.gz]**                                                   |
 
 `cram_list` is a file list that **MUST** contain DNANexus file hash keys (e.g. like file-1234567890ABCDEFGHIJ). A simple
@@ -172,5 +171,4 @@ This applet supports running multiple cram files at once via multithreading by d
    want to spread the workload over multiple instances.
 
 2. If changing the default instance **YOU MUST** use at least mem2 instances as picard needs more memory per file (~4Gb) 
-   then a mem1 instance can provide. **YOU MUST** also change the `threads` parameter accordingly to ensure that each thread
-   has enough CPUs to execute.
+   then a mem1 instance can provide.

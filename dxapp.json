@@ -27,14 +27,6 @@
       "help": ""
     },
     {
-      "name": "threads",
-      "label": "number of threads available to this instance",
-      "class": "int",
-      "optional": true,
-      "default": 16,
-      "help": "Number of threads available to this instance."
-    },
-    {
       "name": "output_file",
       "label": "File to output results to. Default name is coverage.txt.gz",
       "class": "string",
